@@ -50,10 +50,16 @@ const onMapClick = (event) => {
         lng: lng(),
     })
 }
+const clearMarkers = () => {
+    markers.value = []
+}
 
 </script>
 <template>
 <section>
+    <div>
+        <button @click="clearMarkers">Clear Markers</button>
+    </div>
 		<GoogleMap
 			ref="mapRef"
 			:api-key="GMAPS_API_KEY"
