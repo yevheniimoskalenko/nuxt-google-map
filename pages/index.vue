@@ -5,6 +5,7 @@ interface coordI {
 	lng: number
 }
 interface markerI {
+	id: number,
 	index: number
 	position: coordI,
 	draggable: boolean
@@ -27,7 +28,8 @@ const mapOptions = reactive({
 
 const markers = ref<markerI[]>([])
 const center = computed(() => ({ lat: 50.4503596, lng: 30.5245025 }))
-    const GMAPS_API_KEY = computed(() => env.public.GMAPS_API_KEY)
+	const GMAPS_API_KEY = computed(() => env.public.GMAPS_API_KEY)
+	
     watch(
 	() => mapRef.value?.ready,
 	(ready) => {
@@ -42,7 +44,8 @@ const center = computed(() => ({ lat: 50.4503596, lng: 30.5245025 }))
 function onMapClick (event) {
 	const { lat, lng } = event.latLng
 	markers.value.push({
-		index: markers.value.length,
+		id: markers.value.length,
+		index: Date.now(),
 		position: {
 			lat: lat(),
        	 	lng: lng(),
@@ -69,25 +72,33 @@ function handleBoundsChanged () {
   }
 }
 
-	function handlerMarker(index: number) {
-		nextTick(()=> {
-			markers.value[index].draggable = !markers.value[index].draggable
-			markerRef.value[index].marker.draggable = !markerRef.value[index].marker.draggable
-			markers.value[index].index = Date.now()
-		})
+function handlerMarker(id: number) {
+	const marker = markerRef.value.find(m => m.marker.id === id)
+	if (marker) {
+		markers.value[marker.marker.id].draggable = !markers.value[marker.marker.id].draggable
+		marker.marker.draggable = !marker.marker.draggable
+		markers.value[marker.marker.id].index = Date.now()
 	}
+}
 
-	function handleMarkerDrag(index: number) {
-		const { lat, lng } = markerRef.value[index].marker.position
-		updateMarker(index, lat(), lng())
-		markers.value[index].index = Date.now()
+function handleMarkerDrag(id: number) {
+	const marker = markerRef.value.find(m => m.marker.id === id)
+	if (marker) {
+		const { lat, lng } = marker.marker.position
+		updateMarker(id, lat(), lng())
+		markers.value[id].index = Date.now()
+		markers.value[id].index = Date.now()
 	}
+}
 
-	function updateMarker(index:number, lat:number, lng:number) {
-		markers.value[index].position = { lat, lng }
-		markerRef.value[index].marker.position = { lat, lng }
-		markers.value[index].index = Date.now()
+function updateMarker(id:number, lat:number, lng:number) {
+	const marker = markerRef.value.find(m => m.marker.id === id)
+	if (marker) {
+		markers.value[id].position = { lat, lng }
+		marker.marker.position = { lat, lng }
+		markers.value[id].index = Date.now()
 	}
+}
 
 </script>
 <template>
@@ -106,12 +117,12 @@ function handleBoundsChanged () {
 		>
 		<MarkerCluster>
 			<Marker
-			v-for="(marker, index) in markers"
-			ref="markerRef"
-			:key="marker.index"
-			:options="marker"
-			@dblclick="handlerMarker(index)"
-			@dragend="handleMarkerDrag(index)"
+				v-for="marker in markers"
+				ref="markerRef"
+				:key="marker.index"
+				:options="marker"
+				@dblclick="handlerMarker(marker.id)"
+				@dragend="handleMarkerDrag(marker.id)"
 			/>
 		</MarkerCluster>
     </GoogleMap>
