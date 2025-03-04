@@ -1,5 +1,16 @@
 <script setup lang="ts">
-import { GoogleMap, Marker } from 'vue3-google-map'
+import { GoogleMap, Marker, MarkerCluster } from 'vue3-google-map'
+interface coordI {
+	lat: number
+	lng: number
+}
+interface markerI {
+	index: number
+	position: coordI,
+	draggable: boolean
+	visible: boolean
+	icon: string
+}
 const env = useRuntimeConfig()
   const customIconMarker = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
 <path d="M30.6067 28.94L20 39.5467L9.39334 28.94C7.29557 26.8422 5.86698 24.1695 5.28821 21.2598C4.70945 18.3501 5.00651 15.3341 6.14183 12.5932C7.27715 9.85232 9.19974 7.50965 11.6665 5.86144C14.1332 4.21323 17.0333 3.3335 20 3.3335C22.9667 3.3335 25.8668 4.21323 28.3335 5.86144C30.8003 7.50965 32.7229 9.85232 33.8582 12.5932C34.9935 15.3341 35.2906 18.3501 34.7118 21.2598C34.133 24.1695 32.7044 26.8422 30.6067 28.94ZM20 25C21.7681 25 23.4638 24.2977 24.7141 23.0474C25.9643 21.7972 26.6667 20.1015 26.6667 18.3334C26.6667 16.5653 25.9643 14.8696 24.7141 13.6193C23.4638 12.3691 21.7681 11.6667 20 11.6667C18.2319 11.6667 16.5362 12.3691 15.286 13.6193C14.0357 14.8696 13.3333 16.5653 13.3333 18.3334C13.3333 20.1015 14.0357 21.7972 15.286 23.0474C16.5362 24.2977 18.2319 25 20 25ZM20 21.6667C19.116 21.6667 18.2681 21.3155 17.643 20.6904C17.0179 20.0653 16.6667 19.2174 16.6667 18.3334C16.6667 17.4493 17.0179 16.6015 17.643 15.9763C18.2681 15.3512 19.116 15 20 15C20.8841 15 21.7319 15.3512 22.357 15.9763C22.9822 16.6015 23.3333 17.4493 23.3333 18.3334C23.3333 19.2174 22.9822 20.0653 22.357 20.6904C21.7319 21.3155 20.8841 21.6667 20 21.6667Z" fill="#009EFF"/>
@@ -7,24 +18,16 @@ const env = useRuntimeConfig()
 
 const mapRef = useTemplateRef('mapRef')
 const markerRef = useTemplateRef('markerRef')
-const mapOptions = ref({
+const mapOptions = reactive({
 	zoom: 20,
 	maxZoom: 10,
 	minZoom: 3,
-	styles: [
-		{
-			// featureType: 'poi',
-			// elementType: 'all',
-			// stylers: [{ visibility: 'off' }], hide shop
-		},
-	],
+	styles: [],
 })
 
-const markers = ref([])
-
+const markers = ref<markerI[]>([])
 const center = computed(() => ({ lat: 50.4503596, lng: 30.5245025 }))
     const GMAPS_API_KEY = computed(() => env.public.GMAPS_API_KEY)
-
     watch(
 	() => mapRef.value?.ready,
 	(ready) => {
@@ -32,31 +35,59 @@ const center = computed(() => ({ lat: 50.4503596, lng: 30.5245025 }))
 			return
 		}
 		const gmap = mapRef.value.map
-		Object.assign(gmap, {
-			// disableDefaultUI: true,
-			// scaleControl: false,
-			// fullscreenControl: false,
-			// navigationControl: false,
-			// mapTypeControl: false,
-			// streetViewControl: false,
-			// zoomControl: false,
-			// rotateControl: false,
-		})
-		// gmap.addListener('bounds_changed', handleBoundsChanged)
+		gmap.addListener('bounds_changed', handleBoundsChanged)
 	},
     )
 
-const onMapClick = (event) => {
+function onMapClick (event) {
 	const { lat, lng } = event.latLng
-    markers.value.push({
-        lat: lat(),
-        lng: lng(),
-        icon: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(customIconMarker),
+	markers.value.push({
+		index: markers.value.length,
+		position: {
+			lat: lat(),
+       	 	lng: lng(),
+		},
+		draggable: false,
+		visible: true,
+		icon: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(customIconMarker),
     })
 }
-const clearMarkers = () => {
+
+function clearMarkers () {
     markers.value = []
 }
+function handleBoundsChanged () {
+  const gmap = mapRef.value.map;
+	const bounds = gmap.getBounds();
+
+  if (bounds) {
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+
+    // console.log('NorthEast:', ne.lat(), ne.lng());
+    // console.log('SouthWest:', sw.lat(), sw.lng());
+  }
+}
+
+	function handlerMarker(index: number) {
+		nextTick(()=> {
+			markers.value[index].draggable = !markers.value[index].draggable
+			markerRef.value[index].marker.draggable = !markerRef.value[index].marker.draggable
+			markers.value[index].index = Date.now()
+		})
+	}
+
+	function handleMarkerDrag(index: number) {
+		const { lat, lng } = markerRef.value[index].marker.position
+		updateMarker(index, lat(), lng())
+		markers.value[index].index = Date.now()
+	}
+
+	function updateMarker(index:number, lat:number, lng:number) {
+		markers.value[index].position = { lat, lng }
+		markerRef.value[index].marker.position = { lat, lng }
+		markers.value[index].index = Date.now()
+	}
 
 </script>
 <template>
@@ -73,18 +104,16 @@ const clearMarkers = () => {
 			:zoom="15"
 			@click="onMapClick"
 		>
-            <Marker
-				v-for="marker in markers"
-				ref="markerRef"
-				:key="marker.id"
-				:options="{
-					position: {
-						lat: marker.lat,
-                        lng: marker.lng,
-                    },
-                    icon: marker.icon,
-				}"
+		<MarkerCluster>
+			<Marker
+			v-for="(marker, index) in markers"
+			ref="markerRef"
+			:key="marker.index"
+			:options="marker"
+			@dblclick="handlerMarker(index)"
+			@dragend="handleMarkerDrag(index)"
 			/>
+		</MarkerCluster>
     </GoogleMap>
 </section>
 </template>
