@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { GoogleMap, Marker, MarkerCluster, Polygon } from 'vue3-google-map'
+import { GoogleMap, Marker, MarkerCluster, Polygon } from 'vue3-google-map'
 interface coordI {
 	lat: number
 	lng: number
@@ -143,7 +143,6 @@ function updateMarker(id:number, lat:number, lng:number) {
 <section>
     <div>
         <button @click="clearMarkers">Clear Markers</button>
-
 		<form>
 			<div>
 				<label for="contactChoice1">use marker</label>

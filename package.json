@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@nuxt/eslint": "1.1.0",
+    "@nuxtjs/algolia": "1.10.2",
     "@tailwindcss/vite": "^4.0.9",
     "eslint": "^9.0.0",
     "google-maps": "^4.3.3",
