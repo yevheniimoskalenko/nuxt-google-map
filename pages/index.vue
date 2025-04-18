@@ -85,6 +85,10 @@ function onMapClick(event) {
 			visible: true,
 			icon: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(customIconMarker),
 		})
+		console.log({
+				lat: lat(),
+				lng: lng(),
+			})
 	} else {
 		 polygons.value[0].paths.push({
 				lat: lat(),

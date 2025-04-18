@@ -10,7 +10,12 @@ export default defineNuxtConfig({
     public: {GMAPS_API_KEY, ALGOLIA_API_KEY, ALGOLIA_APPLICATION_ID}
   },
   css: ['/assets/main.css'],
-  modules: ['@nuxt/eslint', '@nuxtjs/algolia'],
+  modules: ['@nuxt/eslint', ['@nuxtjs/algolia',
+    {
+      apiKey: ALGOLIA_API_KEY,
+      applicationId: ALGOLIA_APPLICATION_ID,
+    }
+  ]],
     vite: {
         plugins: [
             tailwindcss(),
