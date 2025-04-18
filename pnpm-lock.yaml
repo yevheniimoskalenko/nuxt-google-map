@@ -9,8 +9,8 @@ dependencies:
     specifier: 1.1.0
     version: 1.1.0(@vue/compiler-sfc@3.5.13)(eslint@9.23.0)(typescript@5.8.2)(vite@6.2.2)
   '@nuxtjs/algolia':
-    specifier: 1.10.2
-    version: 1.10.2(vue@3.5.13)
+    specifier: 1.11.2
+    version: 1.11.2(vue@3.5.13)
   '@tailwindcss/vite':
     specifier: ^4.0.9
     version: 4.0.15(vite@6.2.2)
@@ -83,6 +83,11 @@ packages:
       '@algolia/transporter': 4.24.0
     dev: false
 
+  /@algolia/client-common@5.23.4:
+    resolution: {integrity: sha512-bsj0lwU2ytiWLtl7sPunr+oLe+0YJql9FozJln5BnIiqfKOaseSDdV42060vUy+D4373f2XBI009K/rm2IXYMA==}
+    engines: {node: '>= 14.0.0'}
+    dev: false
+
   /@algolia/client-personalization@4.24.0:
     resolution: {integrity: sha512-l5FRFm/yngztweU0HdUzz1rC4yoWCFo3IF+dVIVTfEPg906eZg5BOd1k0K6rZx5JzyyoP4LdmOikfkfGsKVE9w==}
     dependencies:
@@ -149,6 +154,13 @@ packages:
     resolution: {integrity: sha512-JF18yTjNOVYvU/L3UosRcvbPMGT9B+/GQWNWnenIImglzNVGpyzChkXLnrSf6uxwVNO6ESGu6oN8MqcGQcjQJw==}
     dependencies:
       '@algolia/requester-common': 4.24.0
+    dev: false
+
+  /@algolia/requester-node-http@5.23.4:
+    resolution: {integrity: sha512-jXGzGBRUS0oywQwnaCA6mMDJO7LoC3dYSLsyNfIqxDR4SNGLhtg3je0Y31lc24OA4nYyKAYgVLtjfrpcpsWShg==}
+    engines: {node: '>= 14.0.0'}
+    dependencies:
+      '@algolia/client-common': 5.23.4
     dev: false
 
   /@algolia/transporter@4.24.0:
@@ -1355,16 +1367,20 @@ packages:
       - yaml
     dev: false
 
-  /@nuxtjs/algolia@1.10.2(vue@3.5.13):
-    resolution: {integrity: sha512-vN+CSnZmRNWiwzLRQZb5gt+qGgCUYp5Uwd3//f3VWH/gUSlWw+fP71Azvzx3WdAr8Gjsp75U1JPdrHaXGbxG1g==}
+  /@nuxtjs/algolia@1.11.2(vue@3.5.13):
+    resolution: {integrity: sha512-x22Sx6EQebvUmrEY5vDqSaTjNzmAaIA36TKR2Sn9WYM0lS7+tcVL2l3AKg0fUNTLHZz6kesoLMGsppX6cq5Lrw==}
     dependencies:
       '@algolia/cache-in-memory': 4.24.0
       '@algolia/recommend': 4.24.0
       '@algolia/requester-fetch': 4.24.0
+      '@algolia/requester-node-http': 5.23.4
       '@nuxt/kit': 3.16.1(magicast@0.3.5)
       algoliasearch: 4.24.0
+      defu: 6.1.4
+      exsolve: 1.0.4
       instantsearch.css: 7.4.5
       metadata-scraper: 0.2.61
+      mocked-exports: 0.1.1
       storyblok-algolia-indexer: 1.1.0
       vue-instantsearch: 4.20.5(algoliasearch@4.24.0)(vue@3.5.13)
     transitivePeerDependencies:
